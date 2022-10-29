@@ -1,0 +1,33 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+.activeArea{
+    width: 100vw;
+    height:100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pageTitleBox{
+    width: 1040px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-weight: 900;
+}
+.pageTitle{
+    font-weight: 700;
+}
+.addUserBox{
+    padding: 20px 10px;
+    width: 100%;
+    margin-top:0;
+    font-weight: 900;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
