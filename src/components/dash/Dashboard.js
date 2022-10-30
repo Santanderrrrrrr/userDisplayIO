@@ -1,7 +1,7 @@
 import React, {useState } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { selectAllUsers, getSortedUsers, getSortedUsersReversed } from '../../features/usersSlice'
+import { selectAllUsers, getSortedUsers, getSortedUsersReversed, setSorted } from '../../features/usersSlice'
 import { useNavigate, Outlet } from "react-router-dom";
 import './dash.css'
 
@@ -18,10 +18,11 @@ const Dashboard = () => {
     const [ openIt, setOpenIt ] = useState(false)
     const [name, setName] = useState('')
     const [userId, setUserId] = useState('')
-    const [ sorted, setSorted ] = useState(true)
+    // const [ sorted, setSorted ] = useState(true)
 
     const dispatch = useDispatch()
     let users = useSelector(selectAllUsers)
+    let sorted = useSelector(state => state.users.sorted)
 
     const navigate= useNavigate()
     
@@ -41,7 +42,8 @@ const Dashboard = () => {
       setOpenIt(!openIt)
     }
     const toggleSort = ()=>{
-      setSorted(!sorted)
+      // setSorted(!sorted)
+      dispatch(setSorted(!sorted))
       if(sorted){
         dispatch(getSortedUsers())
       }else if(!sorted){

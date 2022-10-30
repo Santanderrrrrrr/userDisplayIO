@@ -21,7 +21,6 @@
             addUser: (state, action) => state.users.push(action.payload),
             getSortedUsers: (state) => {state.users = state.users.slice().sort((a, b)=> a.username.localeCompare(b.username))},
             getSortedUsersReversed: (state) => {state.users = state.users.slice().sort((a, b)=> b.username.localeCompare(a.username))},
-            setSorted: (state, action)=> {state.sorted = action.payload}
             
         },
         extraReducers(builder){
@@ -49,6 +48,10 @@
                 state.status = 'succeeded'
                 state.users = action.payload
             })
+            .addCase(setSorted.fulfilled, (state, action) => {
+                state.status = 'succeeded'
+                state.sorted = action.payload
+            })
         }
     })
 
@@ -56,6 +59,9 @@
 
     export const selectUserById = (state, userId) => state.users.users.find(user => user.id === userId || user.id === Number(userId))
 
+    export const setSorted = createAsyncThunk('users/setSorted', async(boolean)=>{
+        return Promise.resolve(boolean)
+    })
     export const fetchUsers = createAsyncThunk('users/fetchusers', async () => {
         let deets = [];
         let response = await fetch(`${process.env.REACT_APP_API_LINK}`,{
@@ -151,6 +157,6 @@
 
   })
 
-export const { addUser, getSortedUsers, getSortedUsersReversed, setSorted } = usersSlice.actions
+export const { addUser, getSortedUsers, getSortedUsersReversed } = usersSlice.actions
 
 export default usersSlice.reducer

@@ -3,7 +3,7 @@ import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { selectUserById, updateUser } from '../../features/usersSlice'
+import { selectUserById, updateUser, getSortedUsers, getSortedUsersReversed } from '../../features/usersSlice'
 
 
 const Edit = () => {
@@ -14,6 +14,7 @@ const Edit = () => {
     
 
     let thisUser = useSelector(state => selectUserById(state, userId))
+    let sorted = useSelector(state => state.users.sorted)
 
     const [email, setEmail ] = useState('')
     const [name, setName ] = useState('')
@@ -39,6 +40,12 @@ const Edit = () => {
                 setName('')
                 setUsername('')
                 setCity('')
+
+                if(sorted){
+                    dispatch(getSortedUsers())
+                  }else if(!sorted){
+                    dispatch(getSortedUsersReversed())
+                  }
                 Navigate('/')                
             }catch(e){
                 console.log(e)
