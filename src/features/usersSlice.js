@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
     users: [],
@@ -7,7 +7,7 @@ const initialState = {
 }
 
 export const usersSlice = createSlice({
-    name: 'user',
+    name: 'users',
     initialState,
     reducers: {
         //I'll be adding user reducers here
@@ -28,13 +28,19 @@ export const usersSlice = createSlice({
             state.status = 'failed'
             state.error = action.error.message
         })
+        .addCase(addNewUser.fulfilled, (state, action) => {
+            state.users.push(action.payload)
+        })
+        .addCase(updateUser.fulfilled, (state, action) => {
+            state.status = 'succeeded'
+            state.users = action.payload
+        })
     }
 })
 
 export const selectAllUsers = state => state.users.users
 
-export const selectUserById = (state, userId) =>
-  state.users.users.find(user => user.id === userId)
+export const selectUserById = (state, userId) => state.users.users.find(user => user.id === userId)
 
 export const fetchUsers = createAsyncThunk('users/fetchusers', async () => {
     let deets = [];
@@ -52,8 +58,60 @@ export const fetchUsers = createAsyncThunk('users/fetchusers', async () => {
         city: reponse[i].address.city,
       })
     }
-    return deets
+    let users = localStorage.getItem('users')
+    users = JSON.parse(users)
+    if(!users || users.length< deets.length){
+        localStorage.setItem('users', JSON.stringify(deets))
+        console.log(deets)
+        return deets
+    }else{
+        return users
+    }
   })
+
+  export const addNewUser = createAsyncThunk('users/addNewUser', async initialUser => {
+      let response = await fetch(`https://jsonplaceholder.typicode.com/users`, {
+        method: 'POST',
+        body: JSON.stringify(initialUser)
+      })
+      response = await response.json()
+
+      let users = localStorage.getItem('users');
+      users = JSON.parse(users);
+      users.push({...initialUser, id:nanoid().substring(0,4)})
+      localStorage.setItem('users', JSON.stringify(users))
+
+      return Promise.resolve({...initialUser, id: nanoid().substring(0,4)})
+    }
+  )
+
+  export const updateUser = createAsyncThunk('users/updateUser', async (initialUser) => {
+    const { userId } = initialUser;
+    // try-catch block only for development/testing with fake API
+    // otherwise, remove try-catch and add updateUser.rejected case
+    try {
+        // const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`, {
+        //     method: 'PUT',
+        //     body: initialUser
+        // })
+        // return response.data
+        let users = localStorage.getItem('users')
+        users = JSON.parse(users)
+        users = users.map((user)=>{
+            if(user.id ===  Number(userId)){
+                return {
+                    ...user, ...initialUser, id:Number(userId)
+                }
+            }
+            return user
+        })
+        localStorage.setItem('users', JSON.stringify(users))
+        return Promise.resolve(users)
+    } catch (err) {
+        
+        return initialUser;
+    }
+})
 
 export const {  } = usersSlice.actions
 

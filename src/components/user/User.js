@@ -1,10 +1,5 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { addNewUser } from '../../features/usersSlice'
-
-
-import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Grid, Stack, TextField, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, IconButton } from '@mui/material'
 
 
 const NewUser = () => {
@@ -18,39 +13,8 @@ const NewUser = () => {
     const [nameProvided, setNameProvided ] =  useState(true)
     const [emailProvided, setEmailProvided ] =  useState(true)
 
-    const dispatch = useDispatch()
-    const Navigate = useNavigate()
-
     const handleSubmit = (e)=>{
-        e.preventDefault();
-        if(!email) return setEmailProvided(false)
-        if(!name) return setNameProvided(false)
-        let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        if(!email.match(mailFormat)){
-            alert("Please enter a valid email address")
-            return setEmailProvided(false)
-        }
-        try{
-            dispatch(addNewUser({
-                name,
-                username,
-                email, 
-                city                
-            })).unwrap()
-        }catch(e){
-            console.log(e)
-        }
-        setEmail('')
-        setName('')
-        setUsername('')
-        setCity('')
-        setEmailProvided(true)
-        setNameProvided(true)
-        Navigate('/')
 
-    }
-    const backNavigate =()=>{
-        Navigate('/')
     }
 
   return (
@@ -132,6 +96,7 @@ const NewUser = () => {
                             }}>
                                 <TextField
                                     name="city"
+                                    required
                                     fullWidth
                                     id="outlined"
                                     label="city"
@@ -139,26 +104,19 @@ const NewUser = () => {
                                     sx={{ backgroundColor:'white'}}
                                     onChange={(e) => setCity(e.target.value)} value={city}
                                     />
+                                    
+
                             </Grid>
-                    </Stack>  
-                    <Stack sx={{maxWidth:'700px', display: 'flex', flexDirection: 'row'}}>
+
+                    </Stack>   
                             <Button
                                 type="submit"
+                                fullWidth
                                 variant="contained"
-                                sx={{ backgroundColor: 'rgb(9,29,150)', maxWidth:'320px', mt: 3, mb: 2, mr: 3 }}
+                                sx={{ backgroundColor: 'rgb(9,29,150)', width:'320px', mt: 3, mb: 2 }}
                                 >
                                 Create New User!
                             </Button>
-                            <Button
-                                type="button"
-                                fullWidth
-                                variant="outlined"
-                                onClick={backNavigate}
-                                sx={{ "&:hover": { backgroundColor: "#fcfcfc" }, width:'160px', mt: 3, mb: 2 }}
-                                >
-                                Back!
-                            </Button>
-                    </Stack> 
                 </Box>
                 
             </Box>

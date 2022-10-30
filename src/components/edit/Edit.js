@@ -1,52 +1,46 @@
-import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import { addNewUser } from '../../features/usersSlice'
+import React, { useState, useEffect } from 'react'
+import { Box, Button, Grid, Stack, TextField, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, IconButton } from '@mui/material'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+
+import { selectUserById, updateUser, fetchUsers } from '../../features/usersSlice'
 
 
-import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material'
+const Edit = () => {
 
-
-const NewUser = () => {
-
-    const [email, setEmail ] = useState('')
-    const [name, setName ] = useState('')
-    const [username, setUsername ] = useState('')
-    const [city, setCity ] = useState('')
-
-    //verification state
-    const [nameProvided, setNameProvided ] =  useState(true)
-    const [emailProvided, setEmailProvided ] =  useState(true)
-
-    const dispatch = useDispatch()
+    let { userId } = useParams()
     const Navigate = useNavigate()
 
-    const handleSubmit = (e)=>{
-        e.preventDefault();
-        if(!email) return setEmailProvided(false)
-        if(!name) return setNameProvided(false)
-        let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-        if(!email.match(mailFormat)){
-            alert("Please enter a valid email address")
-            return setEmailProvided(false)
+    const dispatch = useDispatch()
+
+    let thisUser = useSelector(state => selectUserById(state, Number(userId)))
+
+    const [email, setEmail ] = useState(thisUser.email)
+    const [name, setName ] = useState(thisUser.name)
+    const [username, setUsername ] = useState(thisUser.username)
+    const [city, setCity ] = useState(thisUser.city)
+
+    useEffect(() =>{
+        
+    },[])
+
+    const salvageable = [email, name, username, city].some(Boolean)
+    const handleSaveChanges = (e)=>{
+        if(salvageable){
+            try{
+                dispatch(updateUser({userId, name, username, email, city}))
+                setEmail('')
+                setName('')
+                setUsername('')
+                setCity('')
+                
+                Navigate('/')
+            }catch(e){
+                console.log(e)
+            }
+        }else{
+            alert("No changes Registered. Hit cancel if you don't want to make changes")
         }
-        try{
-            dispatch(addNewUser({
-                name,
-                username,
-                email, 
-                city                
-            })).unwrap()
-        }catch(e){
-            console.log(e)
-        }
-        setEmail('')
-        setName('')
-        setUsername('')
-        setCity('')
-        setEmailProvided(true)
-        setNameProvided(true)
-        Navigate('/')
 
     }
     const backNavigate =()=>{
@@ -57,10 +51,9 @@ const NewUser = () => {
     <Stack className='backDrop'>
         <Stack className='activeArea'>
             <Box className='gradient' sx={{mt:2}}>
-                <Typography  sx={{fontFamily:'Roboto', fontSize:'35px', fontWeight:'bold'}} className='pageTitle'>Who's new?</Typography>
-                <Box className='theFormItself' component="form" noValidate onSubmit={handleSubmit} sx={{ mt:4 }}> 
-                <Typography variant='h6' className='formInstruction' sx={{mt: 3}}>Enter New User Details Below: </Typography>
-                {(!emailProvided || !nameProvided) && (<Typography variant='subtitle1' className='errorInstruction' sx={{mt: 3, color: 'red'}}>The red fields below must be filled: </Typography>)}
+                <Typography  sx={{fontFamily:'Roboto', fontSize:'35px', fontWeight:'bold'}} className='pageTitle'>What went wrong?</Typography>
+                <Box className='theFormItself' component="form" noValidate onSubmit={handleSaveChanges} sx={{ mt:4 }}> 
+                <Typography variant='h6' className='formInstruction' sx={{mt: 3}}>Suitably edit the required fields: </Typography>
                     <Stack sx={{
                         width: '700px',
                         borderRadius: '15px',
@@ -79,7 +72,7 @@ const NewUser = () => {
                                     id="outlined"
                                     label="Enter the name here..."
                                     autoFocus
-                                    sx={{ backgroundColor: nameProvided? 'white': '#fce3e3'}}
+                                    sx={{ backgroundColor:'white'}}
                                     onChange={(e) => setName(e.target.value)} value={name}
                                     />
                             </Grid>
@@ -118,7 +111,7 @@ const NewUser = () => {
                                     id="outlined"
                                     label="email"
                                     autoFocus
-                                    sx={{ backgroundColor: emailProvided? 'white': '#fce3e3'}}
+                                    sx={{ backgroundColor:'white'}}
                                     onChange={(e) => setEmail(e.target.value)} value={email}
                                     />
                                     
@@ -132,6 +125,7 @@ const NewUser = () => {
                             }}>
                                 <TextField
                                     name="city"
+                                    required
                                     fullWidth
                                     id="outlined"
                                     label="city"
@@ -139,15 +133,18 @@ const NewUser = () => {
                                     sx={{ backgroundColor:'white'}}
                                     onChange={(e) => setCity(e.target.value)} value={city}
                                     />
+                                    
+
                             </Grid>
-                    </Stack>  
-                    <Stack sx={{maxWidth:'700px', display: 'flex', flexDirection: 'row'}}>
+
+                        </Stack>  
+                        <Stack sx={{maxWidth:'700px', display: 'flex', flexDirection: 'row'}}>
                             <Button
                                 type="submit"
                                 variant="contained"
                                 sx={{ backgroundColor: 'rgb(9,29,150)', maxWidth:'320px', mt: 3, mb: 2, mr: 3 }}
                                 >
-                                Create New User!
+                                Save Changes
                             </Button>
                             <Button
                                 type="button"
@@ -156,9 +153,9 @@ const NewUser = () => {
                                 onClick={backNavigate}
                                 sx={{ "&:hover": { backgroundColor: "#fcfcfc" }, width:'160px', mt: 3, mb: 2 }}
                                 >
-                                Back!
+                                Cancel
                             </Button>
-                    </Stack> 
+                        </Stack>
                 </Box>
                 
             </Box>
@@ -168,4 +165,4 @@ const NewUser = () => {
     )
 }
 
-export default NewUser
+export default Edit

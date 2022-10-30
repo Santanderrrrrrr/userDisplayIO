@@ -1,40 +1,53 @@
 import React, {useState, useEffect } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchUsers, selectAllUsers } from '../../features/usersSlice'
-import { useNavigate } from "react-router-dom";
+import { selectAllUsers, fetchUsers } from '../../features/usersSlice'
+import { useNavigate, Outlet } from "react-router-dom";
 import './dash.css'
 
 
 //imports from material ui
 import { Divider, Button, Box, Typography, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import BasicModal from '../modal/BasicModal'
+
 
 
 const Dashboard = () => {
 
+    const [ openIt, setOpenIt ] = useState(false)
+
     const dispatch = useDispatch()
     const users = useSelector(selectAllUsers)
     const navigate= useNavigate()
+    
   
     const userStatus = useSelector(state => state.users.status)
   
     useEffect(() => {
-      console.log( userStatus )
-      if (userStatus === 'idle') {
-        dispatch(fetchUsers())
-      }
-      if(users){
-        console.log(users)
-      }
+        if(userStatus === 'idle'){
+          console.log('now fetching users')
+          dispatch(fetchUsers())
+        }
+        if(users){
+            console.log(users)
+        }
+      
     }, [userStatus, dispatch])
   
     const onAddUserClick=()=>{
         navigate('/new')
     }   
+    const onEditUser=(userId)=>{
+        navigate(`/edit/${userId}`)
+    }
+    const toggleDeleteModal =function(){
+      setOpenIt(!openIt)
+    }
 
   return (
     <>
       <Stack className = 'activeArea'>
+        <Outlet/>
         <Box className='pageTitleBox'>
           <Typography  sx={{fontFamily:'Roboto', fontSize:'60px', fontWeight:'bold'}} className='pageTitle'>Dashboard</Typography>
         </Box>
@@ -54,7 +67,7 @@ const Dashboard = () => {
           }}>
           <Box className='addUserBox'>
             <Typography  sx={{fontFamily:'Roboto', fontSize:'25px', fontWeight:'500'}} className='pageTitle'>User List</Typography>
-            <Button disableElevation variant='contained' onClick={()=>onAddUserClick} sx={{mr:1}}>Add User</Button>
+            <Button disableElevation variant='contained' onClick={onAddUserClick} sx={{mr:1}}>Add User</Button>
           </Box>
           <Divider sx={{width:'80%'}}/>
           <Table sx={{ minWidth: 650, maxHeight:'max-content',maxWidth: 'max-content' }} aria-label="simple table">
@@ -75,19 +88,24 @@ const Dashboard = () => {
                   key={index}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                  <TableCell component="th" scope="row">{user.id}</TableCell>
+                  <TableCell component="th" scope="row">{index+1}</TableCell>
                   <TableCell align="right">{user.name}</TableCell>
                   <TableCell align="right">{user.username}</TableCell>
                   <TableCell align="right">{user.email}</TableCell>
                   <TableCell align="right">{user.city}</TableCell>
-                  <TableCell align="right"><Button variant='contained' disableElevation sx={{backgroundColor:'#ffbd33', "&:hover": { backgroundColor: "#ffae00" }  }}>Edit</Button></TableCell>
-                  <TableCell align="right"><Button variant='outlined' disableElevation color='error'>Delete</Button></TableCell>
+                  <TableCell align="right">
+                    <Button onClick={()=>onEditUser(user.id)} variant='contained' disableElevation sx={{backgroundColor:'#ffbd33', "&:hover": { backgroundColor: "#ffae00" }  }}>Edit</Button>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button onClick={toggleDeleteModal} variant='outlined' disableElevation color='error'>Delete</Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Stack>
+      <BasicModal openIt={openIt} setOpenIt={setOpenIt} />
     </>  
     )
 }
