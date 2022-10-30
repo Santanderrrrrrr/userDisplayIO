@@ -1,16 +1,23 @@
 import * as React from 'react';
 import Modal from '@mui/material/Modal';
-import { Stack, Typography } from '@mui/material';
+import { Stack, Typography, Button } from '@mui/material';
+import { useDispatch } from 'react-redux'
+import { deleteUser } from '../../features/usersSlice'
 import './BasicModal.css'
+import WarningIcon from '@mui/icons-material/Warning';
 
 
+const BasicModal = ({openIt, setOpenIt, name, userId}) => {
 
-
-
-const BasicModal = ({openIt, setOpenIt}) => {
+  const dispatch = useDispatch()
 
   const handleClose = () => {
     setOpenIt(false);
+  }
+
+  const handleDelete = (userId) => {
+    dispatch(deleteUser({userId}))
+    handleClose()
   }
   
 
@@ -24,7 +31,7 @@ const BasicModal = ({openIt, setOpenIt}) => {
       <div>
         <Stack className='backDrop' sx={{ backgroundColor:'#222', width:'350px', height: `290px`, ml: 'auto', mr:'auto', mt:'15%' }}>
           <Stack sx={{ 
-            backgroundColor:'rgb(233,233,233)',
+            backgroundColor:'#ffcccc',
             width: '100%',
             display:'flex', 
             flexDirection:'row', 
@@ -34,25 +41,44 @@ const BasicModal = ({openIt, setOpenIt}) => {
             borderTopRightRadius: '10px',
 
             }}>
-              <div className='message-icon'></div>
-              <Typography variant="body1" className='writing' sx={{ml:1.5, mt:'auto', mb:'auto', color:'rgb(112, 111, 111)'}}>MAIL</Typography>
-              <Typography variant="body2" className='writing' sx={{ml:26, mt:'auto', mb:'auto', color:'rgb(112, 111, 111)'}}>now</Typography>
+              <div className='message-icon'>
+                <WarningIcon color='error'/>
+              </div>
+              <Typography variant="body1" className='writing' sx={{ml:1.5, mt:'auto', mb:'auto', color:'rgb(112, 111, 111)'}}>WARNING</Typography>
           </Stack>
           <Stack className='textBody' sx={{
             display: 'flex',
             flexDirection:'column',
 
             height:'82%',
-            backgroundColor:'rgb(214, 214, 214)',
+            backgroundColor:'white',
             borderBottomLeftRadius: '10px',
             borderBottomRightRadius: '10px',
           }}          
           >
-            <Typography variant='h6' sx={{ml:1.5, mt: 2, mb:-0.25, mr:1.5}}>For you my friend, No problem!</Typography>
-            <Typography sx={{ml:1.5, mt: 0.25, mr:1.5}}>In a moment, there will be a reset link in the email you provided. Click it and we'll help you get back in market as soon as possible!</Typography>
+            <Typography variant='h6' sx={{ml:1.5, mt: 2, mb:-0.25, mr:1.5}}>Delete Action Detected!</Typography>
+            <Typography sx={{ml:1.5, mt: 0.25, mr:1.5}}>Are you sure you want to delete <b>{name}</b> from the registry? This action is irreversible.</Typography>
             <Typography sx={{ml:1.5, mt: 0.25, mr:1.5}}></Typography>
-            <Typography sx={{ml:1.5, mt: 0.25, mr:1.5}}>Finally, if you know someone who needs to buy or sell something, <Typography variant="button">tell them about us!</Typography></Typography>
-
+            <Stack sx={{maxWidth:'100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
+                            <Button
+                                onClick={()=>handleDelete(userId)}
+                                type="button"
+                                fullWidth
+                                variant="contained"
+                                sx={{ "&:hover": { backgroundColor: "#ff6666" }, backgroundColor: '#ff4d4d', width:'120px', mt: 3, mb: 2, mr: 3 }}
+                                >
+                                Delete
+                            </Button>
+                            <Button
+                                type="button"
+                                fullWidth
+                                variant="outlined"
+                                onClick={handleClose}
+                                sx={{ "&:hover": { backgroundColor: "#fcfcfc" }, width:'120px', mt: 3, mb: 2 }}
+                                >
+                                Cancel
+                            </Button>
+                        </Stack>
           </Stack>
         </Stack>
          

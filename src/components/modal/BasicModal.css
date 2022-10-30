@@ -4,13 +4,11 @@
 }
 
 .message-icon{
-    height: 32px;
-    width: 32px;
     background-size: contain;
     background-repeat: no-repeat;
     margin-bottom: auto;
     margin-top: auto;
-    margin-left: 10px;
+    margin-left: 15px;
 }
 
 .textBody{
