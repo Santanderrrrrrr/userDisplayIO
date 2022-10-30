@@ -23,8 +23,14 @@ const NewUser = () => {
 
     const handleSubmit = (e)=>{
         e.preventDefault();
+        if(!email && !name){
+            setEmailProvided(false)
+            setNameProvided(false)
+            return 
+        }
         if(!email) return setEmailProvided(false)
         if(!name) return setNameProvided(false)
+
         let mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         if(!email.match(mailFormat)){
             alert("Please enter a valid email address")
