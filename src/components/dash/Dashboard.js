@@ -1,7 +1,7 @@
-import React, {useState, useEffect } from 'react'
+import React, {useState } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
-import { selectAllUsers, fetchUsers } from '../../features/usersSlice'
+import { selectAllUsers, getSortedUsers, getSortedUsersReversed } from '../../features/usersSlice'
 import { useNavigate, Outlet } from "react-router-dom";
 import './dash.css'
 
@@ -9,6 +9,7 @@ import './dash.css'
 //imports from material ui
 import { Divider, Button, Box, Typography, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import BasicModal from '../modal/BasicModal'
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 
 
 
@@ -17,25 +18,37 @@ const Dashboard = () => {
     const [ openIt, setOpenIt ] = useState(false)
     const [name, setName] = useState('')
     const [userId, setUserId] = useState('')
+    const [ sorted, setSorted ] = useState(true)
 
     const dispatch = useDispatch()
-    const users = useSelector(selectAllUsers)
+    let users = useSelector(selectAllUsers)
+
     const navigate= useNavigate()
     
-  
-    const userStatus = useSelector(state => state.users.status)
-  
-    useEffect(() => {
-        if(userStatus === 'idle'){
-          console.log('now fetching users')
-          dispatch(fetchUsers())
-        }
-        // if(users){
-        //     console.log(users)
-        // }
-      
-    }, [userStatus, dispatch])
-
+    
+    // const userStatus = useSelector(state => state.users.status)
+    
+        
+    const onAddUserClick=()=>{
+      navigate('/new')
+    }   
+    const onEditUser=(userId)=>{
+      navigate(`/edit/${userId}`)
+    }
+    const toggleDeleteModal =function(usersName, usersId){
+      setName(usersName)
+      setUserId(usersId)
+      setOpenIt(!openIt)
+    }
+    const toggleSort = ()=>{
+      setSorted(!sorted)
+      if(sorted){
+        dispatch(getSortedUsers())
+      }else if(!sorted){
+        dispatch(getSortedUsersReversed())
+      }
+    }
+    
     const tableBody = function(){
       return users.map((user, index) => (
         <TableRow
@@ -56,19 +69,7 @@ const Dashboard = () => {
         </TableRow>
       ))
     }
-  
-    const onAddUserClick=()=>{
-        navigate('/new')
-    }   
-    const onEditUser=(userId)=>{
-        navigate(`/edit/${userId}`)
-    }
-    const toggleDeleteModal =function(usersName, usersId){
-      setName(usersName)
-      setUserId(usersId)
-      setOpenIt(!openIt)
-    }
-
+    
   return (
     <>
       <Stack className = 'activeArea'>
@@ -100,7 +101,11 @@ const Dashboard = () => {
               <TableRow>
                 <TableCell>UserId</TableCell>
                 <TableCell align="right">Name</TableCell>
-                <TableCell align="right">Username</TableCell>
+                <TableCell align="right">
+                  <Button onClick={toggleSort} sx={{ '&:hover': {backgroundColor: '#fcfcfc'}, color: 'black', m:0, p:0}}>
+                    <ImportExportIcon htmlColor='#b0bec5'/> Username
+                  </Button>
+                </TableCell>
                 <TableCell align="right">Email</TableCell>
                 <TableCell align="right">City</TableCell>
                 <TableCell align="right">Edit</TableCell>
@@ -111,9 +116,13 @@ const Dashboard = () => {
               {users.length? tableBody()
               : 
               (
-                <Stack sx={{mt: 5}}>
-                  <Typography>No Users to Display! Click <Button onClick={onAddUserClick} sx={{ml: 0, mr: 0, pl: 0, pr: 0}}>Add User</Button> to get started.</Typography>
-                </Stack>
+                <TableRow sx={{m:0, p:0}}>
+                  <TableCell sx={{m:0, p:0}}>
+                    <Stack sx={{m:0, p:0}}>
+                      <Typography>No Users to Display! Click <Button onClick={onAddUserClick} sx={{ '&:hover': {backgroundColor: '#fff'}, ml: 0, mr: 0, pl: 0, pr: 0}}>Add User</Button> to get started.</Typography>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

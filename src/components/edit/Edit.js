@@ -1,40 +1,45 @@
-import React, { useState, useEffect } from 'react'
-import { Box, Button, Grid, Stack, TextField, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, IconButton } from '@mui/material'
+import React, { useState } from 'react'
+import { Box, Button, Grid, Stack, TextField, Typography } from '@mui/material'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { selectUserById, updateUser, fetchUsers } from '../../features/usersSlice'
+import { selectUserById, updateUser } from '../../features/usersSlice'
 
 
 const Edit = () => {
 
     let { userId } = useParams()
     const Navigate = useNavigate()
-
     const dispatch = useDispatch()
+    
 
-    let thisUser = useSelector(state => selectUserById(state, Number(userId)))
+    let thisUser = useSelector(state => selectUserById(state, userId))
 
-    const [email, setEmail ] = useState(thisUser.email)
-    const [name, setName ] = useState(thisUser.name)
-    const [username, setUsername ] = useState(thisUser.username)
-    const [city, setCity ] = useState(thisUser.city)
+    const [email, setEmail ] = useState('')
+    const [name, setName ] = useState('')
+    const [username, setUsername ] = useState('')
+    const [city, setCity ] = useState('')
 
-    useEffect(() =>{
-        
-    },[])
+    
 
     const salvageable = [email, name, username, city].some(Boolean)
     const handleSaveChanges = (e)=>{
+        e.preventDefault()
         if(salvageable){
             try{
-                dispatch(updateUser({userId, name, username, email, city}))
+                let changes = {email, name, username, city}
+                for(let [key, value] of Object.entries(changes)){
+                    if(!Boolean(value)){
+                        delete changes[key]
+                    }
+                }
+                
+                dispatch(updateUser({userId, ...changes}))
                 setEmail('')
                 setName('')
                 setUsername('')
                 setCity('')
-                
-                Navigate('/')
+                Navigate('/')                
             }catch(e){
                 console.log(e)
             }
@@ -52,7 +57,7 @@ const Edit = () => {
         <Stack className='activeArea'>
             <Box className='gradient' sx={{mt:2}}>
                 <Typography  sx={{fontFamily:'Roboto', fontSize:'35px', fontWeight:'bold'}} className='pageTitle'>What went wrong?</Typography>
-                <Box className='theFormItself' component="form" noValidate onSubmit={handleSaveChanges} sx={{ mt:4 }}> 
+                {thisUser && <Box className='theFormItself' component="form" noValidate onSubmit={handleSaveChanges} sx={{ mt:4 }}> 
                 <Typography variant='h6' className='formInstruction' sx={{mt: 3}}>Suitably edit the required fields: </Typography>
                     <Stack sx={{
                         width: '700px',
@@ -72,8 +77,8 @@ const Edit = () => {
                                     id="outlined"
                                     label="Enter the name here..."
                                     autoFocus
-                                    sx={{ backgroundColor:'white'}}
-                                    onChange={(e) => setName(e.target.value)} value={name}
+                                    sx={{backgroundColor:'white'}}
+                                    onChange={(newValue) => setName(newValue.target.value)} defaultValue={thisUser.name}
                                     />
                             </Grid>
                             <Grid className='username' sx={{
@@ -89,7 +94,7 @@ const Edit = () => {
                                     label="username"
                                     autoFocus
                                     sx={{ backgroundColor: 'white'}}
-                                    onChange={(e) => setUsername(e.target.value)} value={username}
+                                    onChange={(newValue) => setUsername(newValue.target.value)} defaultValue={thisUser.username}
                                     />
                             </Grid>
                         </Stack>
@@ -112,7 +117,7 @@ const Edit = () => {
                                     label="email"
                                     autoFocus
                                     sx={{ backgroundColor:'white'}}
-                                    onChange={(e) => setEmail(e.target.value)} value={email}
+                                    onChange={(newValue) => setEmail(newValue.target.value)} defaultValue={thisUser.email}
                                     />
                                     
 
@@ -125,13 +130,13 @@ const Edit = () => {
                             }}>
                                 <TextField
                                     name="city"
-                                    required
                                     fullWidth
                                     id="outlined"
                                     label="city"
                                     autoFocus
                                     sx={{ backgroundColor:'white'}}
-                                    onChange={(e) => setCity(e.target.value)} value={city}
+                                    
+                                    onChange={(newValue) => setCity(newValue.target.value)} defaultValue={thisUser.city}
                                     />
                                     
 
@@ -156,7 +161,7 @@ const Edit = () => {
                                 Cancel
                             </Button>
                         </Stack>
-                </Box>
+                </Box>}
                 
             </Box>
         </Stack>

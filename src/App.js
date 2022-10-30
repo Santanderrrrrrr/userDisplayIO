@@ -4,7 +4,6 @@ import {  Routes, Route} from "react-router-dom"
 import Dashboard from './components/dash/Dashboard'
 import NewUser from './components/new/NewUser'
 import Edit from './components/edit/Edit'
-import User from './components/user/User'
 
 
 
@@ -17,7 +16,6 @@ function App() {
       <Route exact path="/" element={<Dashboard />}>
         <Route exact path="new" element={<NewUser />} />
         <Route exact path="edit/:userId" element={<Edit />} />
-        <Route exact path=":userId" element={<User />} />
       </Route>
 
       <Route

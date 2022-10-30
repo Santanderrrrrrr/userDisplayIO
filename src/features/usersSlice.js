@@ -1,8 +1,15 @@
     import { createSlice, createAsyncThunk, nanoid } from '@reduxjs/toolkit'
 
+    function storageInteraction(){
+        let users = localStorage.getItem('users')
+        users = JSON.parse(users)
+        return users
+    }
+
     const initialState = {
         users: [],
         status: 'idle',
+        sorted: false,
         error: null
     }
 
@@ -10,9 +17,12 @@
         name: 'users',
         initialState,
         reducers: {
-            //I'll be adding user reducers here
+            
             addUser: (state, action) => state.users.push(action.payload),
-            // deleteUser: state => state.value - 1,
+            getSortedUsers: (state) => {state.users = state.users.slice().sort((a, b)=> a.username.localeCompare(b.username))},
+            getSortedUsersReversed: (state) => {state.users = state.users.slice().sort((a, b)=> b.username.localeCompare(a.username))},
+            setSorted: (state, action)=> {state.sorted = action.payload}
+            
         },
         extraReducers(builder){
             builder
@@ -44,11 +54,11 @@
 
     export const selectAllUsers = state => state.users.users
 
-    export const selectUserById = (state, userId) => state.users.users.find(user => user.id === userId)
+    export const selectUserById = (state, userId) => state.users.users.find(user => user.id === userId || user.id === Number(userId))
 
     export const fetchUsers = createAsyncThunk('users/fetchusers', async () => {
         let deets = [];
-        let response = await fetch('https://jsonplaceholder.typicode.com/users',{
+        let response = await fetch(`${process.env.REACT_APP_API_LINK}`,{
         method: 'GET'
         })
         let reponse = await response.json()
@@ -62,8 +72,7 @@
             city: reponse[i].address.city,
         })
         }
-        let users = localStorage.getItem('users')
-        users = JSON.parse(users)
+        let users = storageInteraction()
         if(!users || users.length< deets.length){
             localStorage.setItem('users', JSON.stringify(deets))
             console.log(deets)
@@ -74,15 +83,17 @@
   })
 
   export const addNewUser = createAsyncThunk('users/addNewUser', async initialUser => {
-    //   let response = await fetch(`https://jsonplaceholder.typicode.com/users`, {
+    //   let response = await fetch(`${process.env.REACT_APP_API_LINK}`, {
     //     method: 'POST',
-    //     body: JSON.stringify(initialUser)
+    //     body: JSON.stringify(initialUser),
+    //     headers: {
+    //         'Content-type': 'application/json; charset=UTF-8',
+    //     },
     //   })
     //   response = await response.json()
 
       let genId = nanoid().substring(0,4)
-      let users = localStorage.getItem('users');
-      users = JSON.parse(users);
+      let users = storageInteraction()
       users.push({...initialUser, id:genId})
       localStorage.setItem('users', JSON.stringify(users))
 
@@ -95,11 +106,14 @@
     
     
     try {
-        // const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`, {
+        // const response = await fetch(`${process.env.REACT_APP_API_LINK}/${userId}`, {
         //     method: 'PUT',
-        //     body: initialUser
+        //     body: initialUser,
+            // headers: {
+            //     'Content-type': 'application/json; charset=UTF-8',
+            // },
         // })
-        // return response.data
+        // return await response.json()
         let users = localStorage.getItem('users')
         users = JSON.parse(users)
         users = users.map((user)=>{
@@ -121,12 +135,10 @@
   export const deleteUser = createAsyncThunk('users/deleteUser', async(initialUser)=>{
     const { userId } = initialUser
     try{
-        // const response = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`, {
+        // const response = await fetch(`${process.env.REACT_APP_API_LINK}/users/${userId}`, {
         //     method: 'DELETE',
         // })
-        // return response.data
-        let users = localStorage.getItem('users')
-        users = JSON.parse(users)
+        let users = storageInteraction()
         users = users.filter((user)=>{
             return user.id !== Number(userId) && user.id !== userId
         })
@@ -139,6 +151,6 @@
 
   })
 
-export const {  } = usersSlice.actions
+export const { addUser, getSortedUsers, getSortedUsersReversed, setSorted } = usersSlice.actions
 
 export default usersSlice.reducer
